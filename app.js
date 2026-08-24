@@ -10,6 +10,7 @@ import { dirname, join, extname } from 'path';
 import { mkdirSync, existsSync, writeFileSync } from 'fs';
 import { put } from '@vercel/blob';
 import { insertProspect, listProspects, getProspect, deleteProspect, countProspects } from './db.js';
+import { sendSubmitEmails } from './mailer.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -151,11 +152,13 @@ app.post('/api/submit', upload.single('cv'), async (req, res) => {
 
   try {
     await insertProspect(row);
-    return res.json({ ok: true, id: row.id });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ ok: false, errors: [{ message: 'Server error. Try again.' }] });
   }
+  // Emails are best-effort — don't block the response or the DB write.
+  sendSubmitEmails(row).catch((e) => console.error('[mailer] send failed:', e));
+  return res.json({ ok: true, id: row.id });
 });
 
 // --- Admin ------------------------------------------------------------------
