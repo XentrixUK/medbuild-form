@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Your Medical Portfolio — Built Free by Xentrix</title>
+<style>
+  :root {
+    --black: #1A1A1A;
+    --surface: #262626;
+    --surface-2: #333333;
+    --yellow: #FFC800;
+    --yellow-80: #FFD333;
+    --white: #FFFFFF;
+    --grey: #808080;
+    --grey-light: #B3B3B3;
+    --border: #3d3d3d;
+    --error: #ED2121;
+    --success: #50BF50;
+    --radius: 10px;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font);
+    background: var(--black);
+    color: var(--white);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; padding: 32px 20px 80px; }
+
+  /* Header */
+  .topbar { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
+  .cat-label {
+    display: inline-flex; align-items: center; gap: 8px;
+    color: var(--yellow); font-size: 12px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .cat-label .tri { width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-bottom: 10px solid var(--yellow); }
+  .logo { font-weight: 800; font-size: 20px; letter-spacing: 1px; position: relative; }
+  .logo .x-last { position: relative; }
+  .logo .x-tri { position: absolute; top: -3px; right: -2px; width: 0; height: 0;
+    border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 8px solid var(--yellow); }
+
+  /* Hero */
+  h1 { font-size: clamp(32px, 7vw, 52px); font-weight: 800; line-height: 1.02; text-transform: uppercase; letter-spacing: -0.5px; margin-bottom: 16px; }
+  h1 .hl { color: var(--yellow); }
+  .sub { color: var(--grey-light); font-size: 16px; max-width: 540px; margin-bottom: 8px; }
+  .free-tag { display: inline-block; background: var(--yellow); color: var(--black); font-weight: 700; font-size: 13px; padding: 4px 12px; border-radius: 4px; margin-top: 16px; letter-spacing: 0.5px; }
+
+  /* Progress */
+  .progress { display: flex; gap: 6px; margin: 36px 0 28px; }
+  .progress .seg { flex: 1; height: 4px; background: var(--surface-2); border-radius: 2px; overflow: hidden; }
+  .progress .seg.done { background: var(--yellow); }
+  .step-count { color: var(--grey); font-size: 13px; margin-bottom: 20px; letter-spacing: 0.5px; }
+
+  /* Card */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 28px; }
+  .step { display: none; }
+  .step.active { display: block; animation: fade .25s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .step h2 { font-size: 22px; font-weight: 700; margin-bottom: 6px; }
+  .step .step-hint { color: var(--grey); font-size: 14px; margin-bottom: 22px; }
+
+  /* Fields */
+  .field { margin-bottom: 20px; }
+  .field label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 8px; }
+  .field label .opt { color: var(--grey); font-weight: 400; }
+  .field .desc { color: var(--grey); font-size: 12.5px; margin-top: -3px; margin-bottom: 8px; }
+  input[type=text], input[type=email], input[type=tel], input[type=url], select, textarea {
+    width: 100%; background: var(--black); border: 1px solid var(--border); border-radius: 8px;
+    color: var(--white); font-family: var(--font); font-size: 15px; padding: 12px 14px; transition: border-color .15s;
+  }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--yellow); }
+  input::placeholder, textarea::placeholder { color: #5c5c5c; }
+  textarea { resize: vertical; min-height: 90px; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 520px) { .row { grid-template-columns: 1fr; } }
+
+  /* Choice chips */
+  .chips { display: flex; flex-wrap: wrap; gap: 10px; }
+  .chip { position: relative; }
+  .chip input { position: absolute; opacity: 0; }
+  .chip label {
+    display: block; padding: 10px 16px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--black); cursor: pointer; font-size: 14px; font-weight: 500; margin: 0; transition: all .15s;
+  }
+  .chip input:checked + label { border-color: var(--yellow); background: rgba(255,200,0,.08); color: var(--yellow); }
+
+  /* File */
+  .filebox { border: 1px dashed var(--border); border-radius: 8px; padding: 18px; text-align: center; background: var(--black); cursor: pointer; transition: border-color .15s; }
+  .filebox:hover { border-color: var(--yellow); }
+  .filebox input { display: none; }
+  .filebox .fbtxt { color: var(--grey-light); font-size: 14px; }
+  .filebox .fbtxt strong { color: var(--yellow); }
+  .filename { margin-top: 10px; font-size: 13px; color: var(--success); }
+
+  /* Checkbox */
+  .checkrow { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 16px; }
+  .checkrow input { margin-top: 3px; width: 18px; height: 18px; accent-color: var(--yellow); flex-shrink: 0; }
+  .checkrow label { font-size: 13.5px; color: var(--grey-light); line-height: 1.5; }
+  .checkrow label a { color: var(--yellow); }
+
+  /* Consent note */
+  .consent-note { background: var(--black); border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-size: 12.5px; color: var(--grey); margin-bottom: 20px; line-height: 1.6; }
+
+  /* Nav */
+  .nav { display: flex; justify-content: space-between; gap: 12px; margin-top: 26px; }
+  button {
+    font-family: var(--font); font-weight: 700; font-size: 15px; padding: 13px 26px; border-radius: 8px;
+    border: none; cursor: pointer; transition: transform .1s, opacity .15s;
+  }
+  button:active { transform: translateY(1px); }
+  .btn-primary { background: var(--yellow); color: var(--black); }
+  .btn-primary:hover { background: var(--yellow-80); }
+  .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+  .btn-ghost { background: transparent; color: var(--grey-light); border: 1px solid var(--border); }
+  .btn-ghost:hover { border-color: var(--grey); color: var(--white); }
+  .btn-hidden { visibility: hidden; }
+
+  .err { color: var(--error); font-size: 13px; margin-top: 6px; display: none; }
+  .err.show { display: block; }
+
+  /* Success */
+  .done-screen { display: none; text-align: center; padding: 40px 20px; }
+  .done-screen.show { display: block; }
+  .done-screen .tick { width: 64px; height: 64px; border-radius: 50%; background: rgba(80,191,80,.12); border: 2px solid var(--success); display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 30px; color: var(--success); }
+  .done-screen h2 { font-size: 28px; margin-bottom: 12px; }
+  .done-screen p { color: var(--grey-light); max-width: 460px; margin: 0 auto 8px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <span class="cat-label"><span class="tri"></span> Free Portfolio Build</span>
+    <span class="logo">XENTRI<span class="x-last">X<span class="x-tri"></span></span></span>
+  </div>
+
+  <h1>Your medical portfolio.<br><span class="hl">Built for you. Free.</span></h1>
+  <p class="sub">You've done the hard part. Let us build the live portfolio page that gets your name in front of the right people — before your cohort even thinks about it.</p>
+  <span class="free-tag">No cost · Live link in your inbox · Yours to keep</span>
+
+  <div class="progress" id="progress">
+    <div class="seg done"></div><div class="seg"></div><div class="seg"></div><div class="seg"></div>
+  </div>
+  <div class="step-count" id="stepCount">Step 1 of 4 · About you</div>
+
+  <div class="card">
+    <form id="intakeForm" novalidate>
+
+      <!-- STEP 1 — About you -->
+      <section class="step active" data-step="0">
+        <h2>About you</h2>
+        <p class="step-hint">The basics so we can reach you and build your header.</p>
+
+        <div class="field">
+          <label>Full name (with title) <span class="err" data-for="full_name"></span></label>
+          <input type="text" name="full_name" placeholder="Dr Aisha Rahman" required />
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Email <span class="err" data-for="email"></span></label>
+            <input type="email" name="email" placeholder="you@nhs.net" required />
+          </div>
+          <div class="field">
+            <label>Phone <span class="opt">(optional)</span></label>
+            <input type="tel" name="phone" placeholder="07…" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Where are you based? <span class="opt">(optional)</span></label>
+          <input type="text" name="location" placeholder="Manchester, UK" />
+        </div>
+        <div class="field">
+          <label>Where did you hear about us? <span class="opt">(optional)</span></label>
+          <input type="text" name="source" placeholder="e.g. Facebook group, a colleague, WhatsApp" />
+        </div>
+      </section>
+
+      <!-- STEP 2 — Career -->
+      <section class="step" data-step="1">
+        <h2>Your training</h2>
+        <p class="step-hint">This shapes the structure. UK medical careers have their own language — we speak it.</p>
+
+        <div class="field">
+          <label>Career stage <span class="err" data-for="career_stage"></span></label>
+          <div class="chips">
+            <div class="chip"><input type="radio" name="career_stage" id="cs1" value="final_year"><label for="cs1">Final / penultimate year</label></div>
+            <div class="chip"><input type="radio" name="career_stage" id="cs2" value="f1"><label for="cs2">FY1</label></div>
+            <div class="chip"><input type="radio" name="career_stage" id="cs3" value="f2"><label for="cs3">FY2</label></div>
+            <div class="chip"><input type="radio" name="career_stage" id="cs4" value="img"><label for="cs4">IMG</label></div>
+            <div class="chip"><input type="radio" name="career_stage" id="cs5" value="other"><label for="cs5">Other</label></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Medical school <span class="opt">(optional)</span></label>
+            <input type="text" name="medical_school" placeholder="University of Leeds" />
+          </div>
+          <div class="field">
+            <label>Graduation year <span class="opt">(optional)</span></label>
+            <input type="text" name="graduation_year" placeholder="2026" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>GMC number <span class="opt">(if held)</span></label>
+            <div class="desc">Provisional is fine — leave blank if not registered yet.</div>
+            <input type="text" name="gmc_number" placeholder="7654321" />
+          </div>
+          <div class="field">
+            <label>Deanery / foundation school <span class="opt">(optional)</span></label>
+            <input type="text" name="deanery" placeholder="North West" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Specialty interest <span class="opt">(optional)</span></label>
+          <input type="text" name="specialty" placeholder="e.g. Acute medicine, GP, Surgery, undecided" />
+        </div>
+      </section>
+
+      <!-- STEP 3 — Portfolio content -->
+      <section class="step" data-step="2">
+        <h2>What goes on the page</h2>
+        <p class="step-hint">Give us what you have. Rough notes are fine — we shape it. If you're uploading a CV, you can keep these light.</p>
+
+        <div class="field">
+          <label>Short professional summary <span class="opt">(optional)</span></label>
+          <div class="desc">2–3 lines on who you are and where you're headed. We'll polish it.</div>
+          <textarea name="professional_summary" placeholder="Newly qualified doctor with an interest in acute medicine…"></textarea>
+        </div>
+        <div class="field">
+          <label>Education &amp; degrees <span class="opt">(optional)</span></label>
+          <textarea name="education" placeholder="MBChB, University of Leeds, 2026&#10;BSc Physiology (intercalated), 2023"></textarea>
+        </div>
+        <div class="field">
+          <label>Clinical rotations / placements <span class="opt">(optional)</span></label>
+          <textarea name="rotations" placeholder="General Surgery — Leeds General Infirmary&#10;Emergency Medicine — St James's"></textarea>
+        </div>
+        <div class="field">
+          <label>Audits, research, publications, posters <span class="opt">(optional)</span></label>
+          <textarea name="research" placeholder="QIP on discharge times, presented at regional conference 2025…"></textarea>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Teaching experience <span class="opt">(optional)</span></label>
+            <textarea name="teaching" placeholder="Peer teaching, bedside teaching for students…"></textarea>
+          </div>
+          <div class="field">
+            <label>Certifications <span class="opt">(optional)</span></label>
+            <textarea name="certifications" placeholder="ALS, BLS, ILS…"></textarea>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>Memberships <span class="opt">(optional)</span></label>
+            <textarea name="memberships" placeholder="BMA, Royal College…"></textarea>
+          </div>
+          <div class="field">
+            <label>Awards &amp; achievements <span class="opt">(optional)</span></label>
+            <textarea name="achievements" placeholder="Distinction, prizes, leadership roles…"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- STEP 4 — Build prefs + consent -->
+      <section class="step" data-step="3">
+        <h2>Look &amp; feel</h2>
+        <p class="step-hint">Last bit. Tell us how it should feel and how to send your live link.</p>
+
+        <div class="field">
+          <label>Your CV <span class="opt">(optional)</span></label>
+          <label class="filebox" for="cvFile">
+            <input type="file" name="cv" id="cvFile" accept=".pdf,.doc,.docx" />
+            <span class="fbtxt"><strong>Upload your CV</strong> — PDF, DOC or DOCX (max 8MB)</span>
+          </label>
+          <div class="filename" id="fileName"></div>
+        </div>
+        <div class="checkrow">
+          <input type="checkbox" name="build_cv_for_me" id="buildcv" />
+          <label for="buildcv">I don't have a CV yet — build one for me from the details above.</label>
+        </div>
+
+        <div class="field">
+          <label>Tone <span class="opt">(optional)</span></label>
+          <div class="chips">
+            <div class="chip"><input type="radio" name="tone" id="t1" value="clinical"><label for="t1">Clinical &amp; precise</label></div>
+            <div class="chip"><input type="radio" name="tone" id="t2" value="warm"><label for="t2">Warm &amp; approachable</label></div>
+            <div class="chip"><input type="radio" name="tone" id="t3" value="academic"><label for="t3">Academic</label></div>
+            <div class="chip"><input type="radio" name="tone" id="t4" value="modern"><label for="t4">Modern &amp; bold</label></div>
+          </div>
+        </div>
+        <div class="field">
+          <label>Colour direction <span class="opt">(optional)</span></label>
+          <input type="text" name="colour_direction" placeholder="e.g. calm blues, clean monochrome, teal + white" />
+        </div>
+        <div class="field">
+          <label>Sections you'd like <span class="opt">(optional)</span></label>
+          <div class="chips">
+            <div class="chip"><input type="checkbox" name="sections_wanted" id="s1" value="about"><label for="s1">About</label></div>
+            <div class="chip"><input type="checkbox" name="sections_wanted" id="s2" value="experience"><label for="s2">Experience</label></div>
+            <div class="chip"><input type="checkbox" name="sections_wanted" id="s3" value="research"><label for="s3">Research</label></div>
+            <div class="chip"><input type="checkbox" name="sections_wanted" id="s4" value="teaching"><label for="s4">Teaching</label></div>
+            <div class="chip"><input type="checkbox" name="sections_wanted" id="s5" value="contact"><label for="s5">Contact</label></div>
+            <div class="chip"><input type="checkbox" name="sections_wanted" id="s6" value="blog"><label for="s6">Blog (later)</label></div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label>LinkedIn <span class="opt">(optional)</span></label>
+            <input type="url" name="linkedin" placeholder="linkedin.com/in/…" />
+          </div>
+          <div class="field">
+            <label>ORCID <span class="opt">(optional)</span></label>
+            <input type="url" name="orcid" placeholder="orcid.org/…" />
+          </div>
+        </div>
+        <div class="checkrow">
+          <input type="checkbox" name="wants_custom_domain" id="domain" />
+          <label for="domain">I'd be interested in a custom domain later (e.g. draishahrahman.co.uk).</label>
+        </div>
+        <div class="field">
+          <label>Anything else? <span class="opt">(optional)</span></label>
+          <textarea name="notes" placeholder="A site you like the look of, a specific request…"></textarea>
+        </div>
+
+        <div class="consent-note">
+          <strong style="color:var(--grey-light)">How we handle your data.</strong><br>
+          Xentrix (XENTRIX XYZ LTD, registered in England &amp; Wales) will store the details you provide to build your portfolio and contact you about it. We're the data controller under UK GDPR. Your data is never sold. You can ask us to delete everything at any time by emailing hello@xentrix.xyz.
+        </div>
+        <div class="checkrow">
+          <input type="checkbox" name="consent_data" id="consent1" />
+          <label for="consent1">I agree to Xentrix storing and processing these details to build my portfolio. <span class="err" data-for="consent_data"></span></label>
+        </div>
+        <div class="checkrow">
+          <input type="checkbox" name="consent_marketing" id="consent2" />
+          <label for="consent2">Optional: keep me posted on Xentrix services (custom domains, blog, full sites). You can opt out anytime.</label>
+        </div>
+      </section>
+
+      <div class="nav">
+        <button type="button" class="btn-ghost btn-hidden" id="backBtn">← Back</button>
+        <button type="button" class="btn-primary" id="nextBtn">Continue →</button>
+      </div>
+    </form>
+
+    <!-- Success -->
+    <div class="done-screen" id="doneScreen">
+      <div class="tick">✓</div>
+      <h2>You're in.</h2>
+      <p>We've got everything we need. Our team will build your portfolio and send the live link straight to your inbox.</p>
+      <p style="margin-top:16px;color:var(--grey)">Keep an eye out — and feel free to share Xentrix with anyone in your cohort who could use one too.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('intakeForm');
+  const steps = [...document.querySelectorAll('.step')];
+  const segs = [...document.querySelectorAll('#progress .seg')];
+  const stepLabels = ['About you', 'Your training', 'Portfolio content', 'Look & feel'];
+  const backBtn = document.getElementById('backBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const stepCount = document.getElementById('stepCount');
+  let current = 0;
+
+  function render() {
+    steps.forEach((s, i) => s.classList.toggle('active', i === current));
+    segs.forEach((s, i) => s.classList.toggle('done', i <= current));
+    stepCount.textContent = `Step ${current + 1} of 4 · ${stepLabels[current]}`;
+    backBtn.classList.toggle('btn-hidden', current === 0);
+    nextBtn.textContent = current === steps.length - 1 ? 'Get my portfolio →' : 'Continue →';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function clearErrors() {
+    document.querySelectorAll('.err').forEach(e => { e.classList.remove('show'); e.textContent = ''; });
+  }
+  function showError(field, msg) {
+    const el = document.querySelector(`.err[data-for="${field}"]`);
+    if (el) { el.textContent = msg; el.classList.add('show'); }
+  }
+
+  // Per-step client validation (server re-validates too)
+  function validateStep() {
+    clearErrors();
+    let ok = true;
+    if (current === 0) {
+      const name = form.full_name.value.trim();
+      const email = form.email.value.trim();
+      if (name.length < 2) { showError('full_name', 'Please enter your name'); ok = false; }
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { showError('email', 'Enter a valid email'); ok = false; }
+    }
+    if (current === 1) {
+      if (!form.career_stage.value) { showError('career_stage', 'Pick one'); ok = false; }
+    }
+    if (current === 3) {
+      if (!form.consent_data.checked) { showError('consent_data', 'Required to continue'); ok = false; }
+    }
+    return ok;
+  }
+
+  nextBtn.addEventListener('click', async () => {
+    if (!validateStep()) return;
+    if (current < steps.length - 1) { current++; render(); return; }
+    // Submit
+    nextBtn.disabled = true;
+    nextBtn.textContent = 'Sending…';
+    const fd = new FormData(form);
+    if (form.consent_data.checked) fd.set('consent_data', 'on');
+    try {
+      const res = await fetch('/api/submit', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.ok) {
+        form.style.display = 'none';
+        document.querySelector('.nav').style.display = 'none';
+        document.getElementById('doneScreen').classList.add('show');
+        document.getElementById('progress').style.display = 'none';
+        stepCount.style.display = 'none';
+      } else {
+        (data.errors || []).forEach(e => e.field && showError(e.field, e.message));
+        // jump back to a step with an error if it's on an earlier one
+        if (data.errors?.some(e => e.field === 'consent_data')) { current = 3; render(); }
+        nextBtn.disabled = false; nextBtn.textContent = 'Get my portfolio →';
+      }
+    } catch (err) {
+      alert('Something went wrong. Please try again.');
+      nextBtn.disabled = false; nextBtn.textContent = 'Get my portfolio →';
+    }
+  });
+
+  backBtn.addEventListener('click', () => { if (current > 0) { current--; render(); } });
+
+  document.getElementById('cvFile').addEventListener('change', (e) => {
+    const f = e.target.files[0];
+    document.getElementById('fileName').textContent = f ? `✓ ${f.name}` : '';
+  });
+
+  render();
+</script>
+</body>
+</html>

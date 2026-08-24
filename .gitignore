@@ -1,0 +1,11 @@
+node_modules/
+prospects.db
+prospects.db-shm
+prospects.db-wal
+uploads/*
+!uploads/.gitkeep
+server.log
+shot-*.png
+.env
+.env.local
+.vercel
